@@ -22,7 +22,9 @@ class User(db.Model):
 class Movie(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     title: Mapped[str] = mapped_column(String(80), unique=False, nullable=False)
-    publication_year: Mapped[date] = mapped_column(Date, unique=False, nullable=False)
+    director: Mapped[str] = mapped_column(String(80), unique=False, nullable=False)
+    poster: Mapped[str] = mapped_column(String(500), unique=True, nullable=True)
+    year: Mapped[date] = mapped_column(Date, unique=False, nullable=False)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey('user.id'), nullable=False)
     user: Mapped["User"] = relationship(back_populates="movies")
 
@@ -30,4 +32,5 @@ class Movie(db.Model):
         return f"<Movie {self.id}: {self.title!r}>"
 
     def __str__(self):
-        return f"User: ID: {self.id}, Title: {self.title}, Publication year: {self.publication_year}, user_id: {self.user_id}"
+        return f"User: ID: {self.id}, Title: {self.title}, Poster: {self.poster}, Year: {self.year}, user_id: {self.user_id}"
+
