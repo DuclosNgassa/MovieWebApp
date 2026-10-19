@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}{{ error_code or "Error" }} - Movie App{% endblock %}
+
+{% block content %}
+<div class="error-container" style="text-align: center; padding: 50px 20px;">
+    <h1 style="font-size: 4rem; color: #dc3545; margin-bottom: 10px;">
+        {{ error_code if error_code else "Oops!" }}
+    </h1>
+    <h2>{{ error_title if error_title else "Something Went Wrong" }}</h2>
+    <p style="font-size: 1.2rem; color: #666; margin: 20px 0;">
+        {{ error_message if error_message else "An unknown error occurred while processing your request." }}
+    </p>
+
+    <div style="margin-top: 30px;">
+        <a href="{{ url_for('index') }}" class="btn">Return to Home Page</a>
+    </div>
+</div>
+{% endblock %}
