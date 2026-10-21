@@ -159,7 +159,6 @@ def update_movie_title(user_id, movie_id):
         abort(400, description="Movie title cannot be empty.")
 
     try:
-        movie.title = new_title
         data_manager.update_movie(movie_id, new_title)
     except Exception as e:
         db.session.rollback()
@@ -221,4 +220,4 @@ def handle_unexpected_error(e):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)

@@ -1,5 +1,6 @@
-from datetime import date
+from __future__ import annotations  # <-- Crucial fix for forward referencing Movie inside User
 
+from datetime import date
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Integer, String, Date, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -33,4 +34,3 @@ class Movie(db.Model):
 
     def __str__(self):
         return f"User: ID: {self.id}, Title: {self.title}, Poster: {self.poster}, Year: {self.year}, user_id: {self.user_id}"
-
