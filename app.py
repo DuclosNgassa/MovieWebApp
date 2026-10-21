@@ -4,8 +4,8 @@ from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, abort
 from werkzeug.exceptions import HTTPException
 
-from data_manager import DataManager, MOVIE_URL
-from models import db, User, Movie
+from data_manager import DataManager, call_omdb_api
+from models import db, Movie
 
 app = Flask(__name__)
 
@@ -26,12 +26,19 @@ data_manager = DataManager(db=db)
 
 @app.route('/')
 def index():
-    users = data_manager.get_users()
+    """
+    Home page
+    """
+    users = data_manager.get_all_users()
     return render_template('index.html', users=users)
 
 
 @app.route('/users', methods=['POST'])
 def add_user():
+    """
+    Endpoint for adding a user to the database
+    :return: redirect to home page
+    """
     name = request.form.get('name', '').strip()
 
     if not name:
@@ -55,6 +62,11 @@ def add_user():
 
 @app.route('/users/<int:user_id>/movies', methods=['GET'])
 def get_user_movies(user_id):
+    """
+    Endpoint for getting all movies associated with a user
+    :param user_id:
+    :return: redirect to movie page
+    """
     user = data_manager.get_user_by_id(user_id)
     if not user:
         abort(404, description=f"User with ID {user_id} not found.")
@@ -64,6 +76,11 @@ def get_user_movies(user_id):
 
 @app.route('/users/<int:user_id>/movies', methods=['POST'])
 def add_movie_to_user(user_id):
+    """
+    Endpoint for adding a movie to the database
+    :param user_id: user id associated with the movie to add
+    :return: redirect to movie page
+    """
     user = data_manager.get_user_by_id(user_id)
     if not user:
         abort(404, description=f"User with ID {user_id} not found.")
@@ -75,16 +92,16 @@ def add_movie_to_user(user_id):
     params = {
         "t": title,
         "plot": "full",
-        "apikey": "YOUR_API_KEY"  # Replace with your actual OMDb API key
     }
 
     try:
-        response = requests.get(MOVIE_URL, params=params)
+        response = call_omdb_api(params)
         response.raise_for_status()
         data = response.json()
 
         if data.get("Response") == "True":
             movie_title = data.get("Title")
+            director = data.get("Director")
             poster = data.get("Poster")
 
             # Extract year string and convert to date object
@@ -95,6 +112,7 @@ def add_movie_to_user(user_id):
                 title=movie_title,
                 poster=poster,
                 year=movie_year,
+                director=director,
                 user_id=user_id
             )
 
@@ -122,6 +140,12 @@ def add_movie_to_user(user_id):
 
 @app.route('/users/<int:user_id>/movies/<int:movie_id>/update', methods=['POST'])
 def update_movie_title(user_id, movie_id):
+    """
+    Endpoint for updating a movie title. Title is passed as request parameter
+    :param user_id: user associated with the movie to update
+    :param movie_id: id of the movie to update
+    :return: redirect to movie page
+    """
     user = data_manager.get_user_by_id(user_id)
     if not user:
         abort(404, description=f"User with ID {user_id} not found.")
@@ -147,6 +171,12 @@ def update_movie_title(user_id, movie_id):
 
 @app.route('/users/<int:user_id>/movies/<int:movie_id>/delete', methods=['POST'])
 def delete_user_movie(user_id, movie_id):
+    """
+    Endpoint for deleting a movie
+    :param user_id: user_id associated with the movie to delete
+    :param movie_id: id of the movie to delete
+    :return: redirect to movie page
+    """
     user = data_manager.get_user_by_id(user_id)
     if not user:
         abort(404, description=f"User with ID {user_id} not found.")
