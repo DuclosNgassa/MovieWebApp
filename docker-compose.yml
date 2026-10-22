@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      # This mounts a persistent volume to /app/data so your movies.db isn't lost on restart
+      - sqlite_data:/app/data
+    environment:
+      - FLASK_ENV=production
+    restart: always
+
+volumes:
+  sqlite_data:
